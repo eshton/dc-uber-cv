@@ -2,28 +2,37 @@
 
 import { useEffect, useRef, useState } from "react";
 
-/* ───────── FLOATING PARTICLES ───────── */
-function Particles() {
+/* ───────── FLOATING BALLOONS ───────── */
+const balloonColors = [
+  "#ff6b9d", "#c084fc", "#67d4fc", "#6ee7b7", "#fbbf24",
+  "#fb7185", "#a78bfa", "#fda085", "#34d399", "#f472b6",
+];
+
+function Balloons() {
   return (
     <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden" aria-hidden="true">
-      {Array.from({ length: 18 }).map((_, i) => {
-        const isPurple = i % 3 !== 0;
-        const left = `${5 + (i * 37) % 90}%`;
-        const delay = `${(i * 1.7) % 12}s`;
-        const duration = `${10 + (i * 3) % 8}s`;
-        const size = i % 4 === 0 ? "4px" : i % 3 === 0 ? "2px" : "3px";
+      {Array.from({ length: 14 }).map((_, i) => {
+        const color = balloonColors[i % balloonColors.length];
+        const left = `${5 + (i * 41) % 90}%`;
+        const delay = `${(i * 2.3) % 16}s`;
+        const duration = `${18 + (i * 3) % 12}s`;
+        const size = 28 + (i % 5) * 8;
         return (
           <div
             key={i}
-            className={`particle ${isPurple ? "particle-purple" : "particle-green"}`}
+            className="balloon"
             style={{
               left,
-              bottom: "-10px",
-              width: size,
-              height: size,
-              animation: `float ${duration} ${delay} linear infinite`,
+              bottom: "-80px",
+              animation: `balloonFloat ${duration} ${delay} linear infinite`,
             }}
-          />
+          >
+            <svg width={size} height={size * 1.3} viewBox="0 0 40 52" fill="none">
+              <ellipse cx="20" cy="18" rx="16" ry="18" fill={color} opacity="0.5" />
+              <path d="M20 36 L18 52 M20 36 L22 52" stroke={color} strokeWidth="0.8" opacity="0.4" />
+              <ellipse cx="14" cy="12" rx="4" ry="5" fill="white" opacity="0.2" />
+            </svg>
+          </div>
         );
       })}
     </div>
@@ -33,7 +42,6 @@ function Particles() {
 /* ───────── SCROLL REVEAL HOOK ───────── */
 function useReveal() {
   const ref = useRef<HTMLDivElement>(null);
-
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
@@ -49,7 +57,6 @@ function useReveal() {
     observer.observe(el);
     return () => observer.disconnect();
   }, []);
-
   return ref;
 }
 
@@ -69,10 +76,11 @@ function RevealSection({
 }
 
 /* ───────── SECTION HEADING ───────── */
-function SectionHeading({ children }: { children: React.ReactNode }) {
+function SectionHeading({ children, emoji }: { children: React.ReactNode; emoji?: string }) {
   return (
     <div className="mb-12 text-center">
-      <h2 className="font-[family-name:var(--font-heading)] text-3xl md:text-4xl font-bold tracking-widest uppercase text-phantom-light">
+      {emoji && <span className="text-4xl mb-3 block">{emoji}</span>}
+      <h2 className="font-[family-name:var(--font-display)] text-3xl md:text-4xl font-bold tracking-wide text-foreground">
         {children}
       </h2>
       <div className="mt-4 section-divider" />
@@ -83,7 +91,6 @@ function SectionHeading({ children }: { children: React.ReactNode }) {
 /* ───────── NAV ───────── */
 function Nav() {
   const [scrolled, setScrolled] = useState(false);
-
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 80);
     window.addEventListener("scroll", handleScroll, { passive: true });
@@ -91,25 +98,25 @@ function Nav() {
   }, []);
 
   const links = [
-    { href: "#about", label: "Lore" },
-    { href: "#skills", label: "Stats" },
-    { href: "#quests", label: "Quests" },
-    { href: "#education", label: "Training" },
-    { href: "#contact", label: "Summon" },
+    { href: "#about", label: "About" },
+    { href: "#gallery", label: "Gallery" },
+    { href: "#skills", label: "Skills" },
+    { href: "#quests", label: "Experience" },
+    { href: "#contact", label: "Contact" },
   ];
 
   return (
     <nav
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
         scrolled
-          ? "bg-crypt/90 backdrop-blur-md border-b border-phantom/20 shadow-[0_4px_30px_#7c3aed11]"
+          ? "bg-white/80 backdrop-blur-xl border-b border-pink/20 shadow-lg shadow-pink/5"
           : "bg-transparent"
       }`}
     >
       <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
         <a
           href="#"
-          className="font-[family-name:var(--font-display)] text-lg text-phantom-light tracking-[0.3em] hover:text-phantom transition-colors"
+          className="font-[family-name:var(--font-display)] text-xl font-bold rainbow-text tracking-wider hover:opacity-80 transition-opacity"
         >
           DC
         </a>
@@ -118,7 +125,7 @@ function Nav() {
             <a
               key={l.href}
               href={l.href}
-              className="font-[family-name:var(--font-heading)] text-xs tracking-[0.25em] uppercase text-bone/60 hover:text-phantom-light transition-colors duration-300"
+              className="font-[family-name:var(--font-body)] text-sm font-medium tracking-wider text-foreground/60 hover:text-pink transition-colors duration-300"
             >
               {l.label}
             </a>
@@ -136,10 +143,10 @@ function MobileMenu({ links }: { links: { href: string; label: string }[] }) {
     <div className="md:hidden">
       <button
         onClick={() => setOpen(!open)}
-        className="text-bone/60 hover:text-phantom-light transition-colors p-2"
+        className="text-foreground/60 hover:text-pink transition-colors p-2"
         aria-label="Toggle menu"
       >
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
           {open ? (
             <path d="M6 6l12 12M6 18L18 6" />
           ) : (
@@ -148,13 +155,13 @@ function MobileMenu({ links }: { links: { href: string; label: string }[] }) {
         </svg>
       </button>
       {open && (
-        <div className="absolute top-full left-0 right-0 bg-crypt/95 backdrop-blur-md border-b border-phantom/20 py-4">
+        <div className="absolute top-full left-0 right-0 bg-white/95 backdrop-blur-xl border-b border-pink/20 py-4 shadow-lg">
           {links.map((l) => (
             <a
               key={l.href}
               href={l.href}
               onClick={() => setOpen(false)}
-              className="block px-6 py-3 font-[family-name:var(--font-heading)] text-sm tracking-[0.2em] uppercase text-bone/60 hover:text-phantom-light hover:bg-phantom/5 transition-colors"
+              className="block px-6 py-3 font-[family-name:var(--font-body)] text-sm font-medium tracking-wider text-foreground/70 hover:text-pink hover:bg-pink/5 transition-colors"
             >
               {l.label}
             </a>
@@ -169,78 +176,76 @@ function MobileMenu({ links }: { links: { href: string; label: string }[] }) {
 function Hero() {
   return (
     <section className="relative min-h-screen flex flex-col items-center justify-center text-center px-6 overflow-hidden">
-      {/* Background radial gradient */}
+      {/* Soft gradient background */}
       <div
         className="absolute inset-0 z-0"
         style={{
           background:
-            "radial-gradient(ellipse 60% 50% at 50% 40%, #7c3aed12 0%, transparent 70%), radial-gradient(ellipse 40% 30% at 50% 60%, #10b98108 0%, transparent 60%)",
+            "radial-gradient(ellipse 80% 60% at 50% 30%, #ff6b9d15 0%, transparent 50%), radial-gradient(ellipse 60% 40% at 30% 70%, #c084fc12 0%, transparent 50%), radial-gradient(ellipse 50% 50% at 70% 60%, #67d4fc10 0%, transparent 50%)",
         }}
       />
 
-      {/* Decorative rune circle */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] md:w-[700px] md:h-[700px] z-0 opacity-[0.06]">
-        <svg viewBox="0 0 700 700" className="w-full h-full" style={{ animation: "runeRotate 120s linear infinite" }}>
-          <circle cx="350" cy="350" r="340" fill="none" stroke="#7c3aed" strokeWidth="0.5" />
-          <circle cx="350" cy="350" r="280" fill="none" stroke="#7c3aed" strokeWidth="0.3" strokeDasharray="8 12" />
-          <circle cx="350" cy="350" r="220" fill="none" stroke="#10b981" strokeWidth="0.3" />
-          {/* Rune marks */}
-          {Array.from({ length: 12 }).map((_, i) => {
-            const angle = (i * 30 * Math.PI) / 180;
-            const x = 350 + 340 * Math.cos(angle);
-            const y = 350 + 340 * Math.sin(angle);
-            return (
-              <g key={i} transform={`translate(${x},${y}) rotate(${i * 30})`}>
-                <line x1="-8" y1="0" x2="8" y2="0" stroke="#7c3aed" strokeWidth="0.8" />
-                <line x1="0" y1="-5" x2="0" y2="5" stroke="#7c3aed" strokeWidth="0.5" />
-              </g>
-            );
-          })}
-        </svg>
+      {/* Decorative elements */}
+      <div className="absolute top-20 left-10 text-6xl opacity-30" style={{ animation: "floatSlow 4s ease-in-out infinite" }}>
+        🎈
+      </div>
+      <div className="absolute top-32 right-16 text-5xl opacity-25" style={{ animation: "floatSlow 5s ease-in-out 1s infinite" }}>
+        🌈
+      </div>
+      <div className="absolute bottom-32 left-20 text-4xl opacity-20" style={{ animation: "floatSlow 6s ease-in-out 2s infinite" }}>
+        ✨
+      </div>
+      <div className="absolute bottom-40 right-12 text-5xl opacity-25" style={{ animation: "floatSlow 4.5s ease-in-out 0.5s infinite" }}>
+        🎀
       </div>
 
       <div className="relative z-10">
-        {/* Crow icon */}
-        <div className="mb-6 flex justify-center">
-          <svg width="48" height="48" viewBox="0 0 48 48" fill="none" className="text-phantom/50">
-            <path
-              d="M24 4C20 8 12 12 8 20C6 24 8 30 12 34L18 38L24 44L30 38L36 34C40 30 42 24 40 20C36 12 28 8 24 4Z"
-              stroke="currentColor"
-              strokeWidth="1"
-              fill="none"
-            />
-            <path d="M18 22L24 18L30 22" stroke="currentColor" strokeWidth="0.8" />
-            <circle cx="20" cy="24" r="1.5" fill="currentColor" />
-            <circle cx="28" cy="24" r="1.5" fill="currentColor" />
-            <path d="M22 28L24 30L26 28" stroke="currentColor" strokeWidth="0.8" />
-          </svg>
+        {/* Avatar circle with rainbow border */}
+        <div className="mb-8 flex justify-center">
+          <div className="rainbow-border rounded-full p-1" style={{ animation: "heartBeat 3s ease-in-out infinite" }}>
+            <div className="w-32 h-32 md:w-40 md:h-40 rounded-full overflow-hidden bg-gradient-to-br from-pink-light to-lavender-light">
+              <img
+                src="https://media.licdn.com/dms/image/v2/D4D03AQHLzqFl67F0jQ/profile-displayphoto-shrink_800_800/profile-displayphoto-shrink_800_800/0/1720693221552?e=1744243200&v=beta&t=2LrVcIyH_VCvwNJaIeKPBPWj76LlWH1_8KUz2ZqWYmA"
+                alt="Deathcrow"
+                className="w-full h-full object-cover"
+                onError={(e) => {
+                  const target = e.target as HTMLImageElement;
+                  target.style.display = "none";
+                  target.parentElement!.innerHTML = '<div class="w-full h-full flex items-center justify-center text-6xl">🐦‍⬛</div>';
+                }}
+              />
+            </div>
+          </div>
         </div>
 
-        <h1
-          className="glow-title font-[family-name:var(--font-display)] text-6xl sm:text-7xl md:text-8xl lg:text-9xl font-black tracking-[0.2em] text-phantom-light leading-none"
-        >
+        <h1 className="rainbow-text font-[family-name:var(--font-display)] text-6xl sm:text-7xl md:text-8xl lg:text-9xl font-black tracking-wide leading-none">
           DEATHCROW
         </h1>
 
-        <p className="mt-6 font-[family-name:var(--font-heading)] text-lg md:text-xl tracking-[0.15em] text-bone/70">
+        <p className="mt-4 font-[family-name:var(--font-display)] text-xl md:text-2xl tracking-wide text-foreground/70 italic">
           Ngoc Nguyen Quang
         </p>
 
-        <div className="mt-4 flex items-center justify-center gap-3 text-sm font-[family-name:var(--font-mono)] text-wraith/70">
-          <span className="inline-block w-2 h-2 rounded-full bg-wraith animate-pulse" />
+        <div className="mt-4 flex items-center justify-center gap-3 text-sm font-[family-name:var(--font-mono)] text-lavender">
+          <span className="inline-block w-2 h-2 rounded-full bg-mint animate-pulse" />
           <span>Lead Escalation Officer @ SAP</span>
         </div>
 
-        <p className="mt-2 font-[family-name:var(--font-mono)] text-xs tracking-widest text-bone/40">
-          Budapest, Hungary
+        <p className="mt-2 font-[family-name:var(--font-mono)] text-xs tracking-widest text-foreground/40">
+          Budapest, Hungary 🇭🇺
+        </p>
+
+        {/* Fun tagline */}
+        <p className="mt-6 text-lg font-[family-name:var(--font-display)] italic text-pink/80">
+          Serving looks & resolving incidents since 2007 💅
         </p>
 
         <a
           href="#about"
-          className="mt-16 inline-block animate-bounce text-phantom/40 hover:text-phantom-light transition-colors"
+          className="mt-12 inline-block animate-bounce text-pink/50 hover:text-pink transition-colors"
           aria-label="Scroll down"
         >
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <path d="M7 10l5 5 5-5" />
           </svg>
         </a>
@@ -255,26 +260,35 @@ function About() {
     <section id="about" className="py-24 md:py-32 px-6">
       <div className="max-w-4xl mx-auto">
         <RevealSection>
-          <SectionHeading>Lore</SectionHeading>
+          <SectionHeading emoji="💖">About Me</SectionHeading>
         </RevealSection>
 
         <RevealSection className="max-w-3xl mx-auto">
-          <div className="relative p-8 md:p-12 border border-phantom/15 bg-ash/40 backdrop-blur-sm rune-border">
-            <p className="font-[family-name:var(--font-body)] text-lg md:text-xl leading-relaxed text-bone/80 italic">
-              &ldquo;Solving all operational issues, focusing on the technical resolution &mdash;
+          <div className="gradient-card rounded-2xl p-8 md:p-12 relative overflow-hidden">
+            {/* Decorative corner emojis */}
+            <span className="absolute top-4 right-4 text-2xl opacity-30">🌸</span>
+            <span className="absolute bottom-4 left-4 text-2xl opacity-30">✨</span>
+
+            <p className="font-[family-name:var(--font-display)] text-xl md:text-2xl leading-relaxed text-foreground/80 italic">
+              &ldquo;Solving all operational issues with flair and finesse &mdash;
               IT Infrastructure and Application troubleshooting, monitoring, IT security reviews.
               Working to reach higher levels in modern IT security.&rdquo;
             </p>
-            <p className="mt-6 font-[family-name:var(--font-body)] text-base md:text-lg leading-relaxed text-bone/60">
-              Living in Budapest and working in a multicultural environment &mdash;
-              motivated for new challenges, if you can give one.
+            <p className="mt-6 font-[family-name:var(--font-body)] text-base md:text-lg leading-relaxed text-foreground/60">
+              Living my best life in Budapest 🏳️‍🌈 working in a multicultural environment &mdash;
+              always motivated for new challenges, honey. If you can give one, bring it on! 💪
             </p>
 
-            {/* Decorative corner accents */}
-            <div className="absolute top-0 left-0 w-8 h-8 border-t border-l border-phantom/30" />
-            <div className="absolute top-0 right-0 w-8 h-8 border-t border-r border-phantom/30" />
-            <div className="absolute bottom-0 left-0 w-8 h-8 border-b border-l border-wraith/30" />
-            <div className="absolute bottom-0 right-0 w-8 h-8 border-b border-r border-wraith/30" />
+            <div className="mt-8 flex flex-wrap gap-3">
+              {["IT Hero", "WoW Veteran", "MMORPG Addict", "Incident Slayer", "Budapest Life"].map((tag) => (
+                <span
+                  key={tag}
+                  className="px-4 py-1.5 rounded-full text-sm font-medium bg-pink/10 text-pink border border-pink/20"
+                >
+                  {tag}
+                </span>
+              ))}
+            </div>
           </div>
         </RevealSection>
       </div>
@@ -282,22 +296,183 @@ function About() {
   );
 }
 
-/* ───────── SKILLS & LANGUAGES ───────── */
+/* ───────── PHOTO GALLERY ───────── */
+const photos = [
+  {
+    src: "https://images.unsplash.com/photo-1533738363-b7f9aef128ce?w=600&h=600&fit=crop",
+    caption: "Feeling cute, might resolve incidents later 😼",
+    rotate: "-2deg",
+  },
+  {
+    src: "https://images.unsplash.com/photo-1529778873920-4da4926a72c2?w=600&h=600&fit=crop",
+    caption: "The boss vibes 🐱",
+    rotate: "1deg",
+  },
+  {
+    src: "https://images.unsplash.com/photo-1530281700549-e82e7bf110d6?w=600&h=600&fit=crop",
+    caption: "Best boi energy 🐕",
+    rotate: "-1deg",
+  },
+  {
+    src: "https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=600&h=700&fit=crop",
+    caption: "Party time! 🎈🎈🎈",
+    rotate: "2deg",
+  },
+  {
+    src: "https://images.unsplash.com/photo-1527529482837-4698179dc6ce?w=600&h=600&fit=crop",
+    caption: "Cheers to fabulous nights 🥂",
+    rotate: "-1.5deg",
+  },
+  {
+    src: "https://images.unsplash.com/photo-1513151233558-d860c5398176?w=600&h=600&fit=crop",
+    caption: "Confetti vibes only! 🎊",
+    rotate: "1.5deg",
+  },
+  {
+    src: "https://images.unsplash.com/photo-1464349153735-7db50ed83c84?w=600&h=600&fit=crop",
+    caption: "Budapest sunsets hit different 🌅",
+    rotate: "-2.5deg",
+  },
+  {
+    src: "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=600&h=600&fit=crop",
+    caption: "Food is life, periodt 🍕",
+    rotate: "0.5deg",
+  },
+];
+
+function PhotoGallery() {
+  return (
+    <section id="gallery" className="py-24 md:py-32 px-6 bg-gradient-to-b from-transparent via-blush/50 to-transparent">
+      <div className="max-w-6xl mx-auto">
+        <RevealSection>
+          <SectionHeading emoji="📸">The Gallery</SectionHeading>
+          <p className="text-center text-foreground/50 font-[family-name:var(--font-display)] italic text-lg -mt-6 mb-12">
+            A curated collection of vibes ✨
+          </p>
+        </RevealSection>
+
+        <div className="photo-grid">
+          {photos.map((photo, i) => (
+            <RevealSection key={i}>
+              <div
+                className="photo-card rounded-2xl overflow-hidden bg-white"
+                style={{ transform: `rotate(${photo.rotate})` }}
+              >
+                <div className="aspect-square overflow-hidden">
+                  <img
+                    src={photo.src}
+                    alt={photo.caption}
+                    className="w-full h-full object-cover hover:scale-110 transition-transform duration-700"
+                    loading="lazy"
+                  />
+                </div>
+                <div className="p-4">
+                  <p className="text-sm text-foreground/60 font-[family-name:var(--font-body)]">
+                    {photo.caption}
+                  </p>
+                </div>
+              </div>
+            </RevealSection>
+          ))}
+        </div>
+
+        {/* Boobs & Balloons section - cheeky bird themed */}
+        <RevealSection>
+          <div className="mt-16 text-center">
+            <h3 className="font-[family-name:var(--font-display)] text-2xl font-bold text-foreground/80 mb-6">
+              Boobies & Balloons 🎈
+            </h3>
+            <p className="text-foreground/50 mb-8 italic">The real stars of the show</p>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 max-w-4xl mx-auto">
+              {/* Blue-footed booby */}
+              <div className="photo-card rounded-2xl overflow-hidden bg-white" style={{ transform: "rotate(-1deg)" }}>
+                <div className="aspect-square overflow-hidden">
+                  <img
+                    src="https://images.unsplash.com/photo-1517845506591-e79663ac4c23?w=600&h=600&fit=crop"
+                    alt="Blue-footed booby bird"
+                    className="w-full h-full object-cover hover:scale-110 transition-transform duration-700"
+                    loading="lazy"
+                  />
+                </div>
+                <div className="p-4">
+                  <p className="text-sm text-foreground/60">Blue-footed Booby, iconic queen 👑</p>
+                </div>
+              </div>
+
+              {/* Colorful balloons */}
+              <div className="photo-card rounded-2xl overflow-hidden bg-white" style={{ transform: "rotate(1.5deg)" }}>
+                <div className="aspect-square overflow-hidden">
+                  <img
+                    src="https://images.unsplash.com/photo-1527529482837-4698179dc6ce?w=600&h=600&fit=crop&q=80"
+                    alt="Colorful party balloons"
+                    className="w-full h-full object-cover hover:scale-110 transition-transform duration-700"
+                    loading="lazy"
+                  />
+                </div>
+                <div className="p-4">
+                  <p className="text-sm text-foreground/60">Balloon extravaganza! 🎈🎈🎈</p>
+                </div>
+              </div>
+
+              {/* Another booby */}
+              <div className="photo-card rounded-2xl overflow-hidden bg-white" style={{ transform: "rotate(-0.5deg)" }}>
+                <div className="aspect-square overflow-hidden">
+                  <img
+                    src="https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=600&h=600&fit=crop"
+                    alt="Booby bird on rock"
+                    className="w-full h-full object-cover hover:scale-110 transition-transform duration-700"
+                    loading="lazy"
+                  />
+                </div>
+                <div className="p-4">
+                  <p className="text-sm text-foreground/60">Serving body-ody-ody 💃</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </RevealSection>
+
+        {/* More balloons row */}
+        <RevealSection>
+          <div className="mt-8 grid grid-cols-2 sm:grid-cols-4 gap-4 max-w-4xl mx-auto">
+            {[
+              { src: "https://images.unsplash.com/photo-1530103862676-de8c9debad1d?w=400&h=400&fit=crop", cap: "Pop off! 🎈" },
+              { src: "https://images.unsplash.com/photo-1513151233558-d860c5398176?w=400&h=400&fit=crop", cap: "Confetti rain 🎊" },
+              { src: "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=400&h=400&fit=crop", cap: "Party never stops 🪩" },
+              { src: "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=400&h=400&fit=crop", cap: "Festival energy ⚡" },
+            ].map((item, i) => (
+              <div key={i} className="photo-card rounded-xl overflow-hidden bg-white" style={{ transform: `rotate(${(i % 2 === 0 ? -1 : 1) * (1 + i * 0.5)}deg)` }}>
+                <div className="aspect-square overflow-hidden">
+                  <img src={item.src} alt={item.cap} className="w-full h-full object-cover hover:scale-110 transition-transform duration-500" loading="lazy" />
+                </div>
+                <div className="p-3">
+                  <p className="text-xs text-foreground/50">{item.cap}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </RevealSection>
+      </div>
+    </section>
+  );
+}
+
+/* ───────── SKILLS ───────── */
 const skills = [
-  { name: "Network Engineering", level: 92, color: "purple" as const },
-  { name: "Major Incident Management", level: 95, color: "purple" as const },
-  { name: "IT Security", level: 80, color: "green" as const },
-  { name: "ITIL / ITSM", level: 90, color: "purple" as const },
-  { name: "Infrastructure (Hyperscalers, Storage, Compute)", level: 88, color: "green" as const },
-  { name: "MMORPG", level: 99, color: "green" as const },
+  { name: "Network Engineering", level: 92 },
+  { name: "Major Incident Management", level: 95 },
+  { name: "IT Security", level: 80 },
+  { name: "ITIL / ITSM", level: 90 },
+  { name: "Infrastructure (Cloud, Storage, Compute)", level: 88 },
+  { name: "MMORPG", level: 99 },
 ];
 
 const languages = [
-  { name: "Hungarian", level: "Native", pct: 100 },
-  { name: "English", level: "Native", pct: 100 },
-  { name: "Vietnamese", level: "Professional", pct: 85 },
-  { name: "Italian", level: "Limited", pct: 35 },
-  { name: "Spanish", level: "Limited", pct: 35 },
+  { name: "Hungarian", level: "Native", pct: 100, flag: "🇭🇺" },
+  { name: "English", level: "Native", pct: 100, flag: "🇬🇧" },
+  { name: "Vietnamese", level: "Professional", pct: 85, flag: "🇻🇳" },
+  { name: "Italian", level: "Limited", pct: 35, flag: "🇮🇹" },
+  { name: "Spanish", level: "Limited", pct: 35, flag: "🇪🇸" },
 ];
 
 function Skills() {
@@ -305,22 +480,20 @@ function Skills() {
     <section id="skills" className="py-24 md:py-32 px-6">
       <div className="max-w-5xl mx-auto">
         <RevealSection>
-          <SectionHeading>Character Stats</SectionHeading>
+          <SectionHeading emoji="💪">Skills & Powers</SectionHeading>
         </RevealSection>
 
-        {/* Skills */}
         <div className="grid md:grid-cols-2 gap-6 mb-16">
           {skills.map((s, i) => (
-            <RevealSection key={s.name} className={`delay-${i}`} >
+            <RevealSection key={s.name}>
               <SkillBar skill={s} index={i} />
             </RevealSection>
           ))}
         </div>
 
-        {/* Languages */}
         <RevealSection>
-          <h3 className="font-[family-name:var(--font-heading)] text-xl tracking-[0.2em] uppercase text-wraith-light text-center mb-8">
-            Spoken Tongues
+          <h3 className="font-[family-name:var(--font-display)] text-xl tracking-wide text-center mb-8 text-foreground/80">
+            Languages I Slay In 🗣️
           </h3>
         </RevealSection>
 
@@ -357,45 +530,44 @@ function SkillBar({ skill, index }: { skill: typeof skills[0]; index: number }) 
   }, []);
 
   return (
-    <div ref={ref} className="group">
-      <div className="flex justify-between items-baseline mb-2">
-        <span className="font-[family-name:var(--font-heading)] text-sm tracking-wider text-bone/80 uppercase">
+    <div ref={ref} className="gradient-card rounded-xl p-5">
+      <div className="flex justify-between items-baseline mb-3">
+        <span className="font-[family-name:var(--font-body)] text-sm font-semibold tracking-wide text-foreground/80">
           {skill.name}
         </span>
-        <span className="font-[family-name:var(--font-mono)] text-xs text-phantom-light/60">
-          {skill.level}/100
+        <span className="font-[family-name:var(--font-mono)] text-xs text-lavender font-bold">
+          {skill.level}%
         </span>
       </div>
-      <div className="skill-bar-bg h-3">
+      <div className="skill-bar-bg">
         <div
-          className={`${skill.color === "purple" ? "skill-bar-fill-purple" : "skill-bar-fill-green"} ${
-            visible ? "animate-bar-fill" : ""
-          }`}
+          className="skill-bar-fill"
           style={{
             width: visible ? `${skill.level}%` : "0%",
-            animationDelay: `${index * 0.15}s`,
+            transitionDelay: `${index * 0.15}s`,
           }}
         />
       </div>
+      {skill.name === "MMORPG" && (
+        <p className="mt-2 text-xs text-pink italic">Max level achieved, obviously 💅</p>
+      )}
     </div>
   );
 }
 
 function LanguageCard({ lang, index }: { lang: typeof languages[0]; index: number }) {
   return (
-    <div
-      className="p-4 border border-phantom/15 bg-ash/30 text-center hover:border-phantom/40 hover:bg-ash/50 transition-all duration-300 group"
-      style={{ animationDelay: `${index * 0.1}s` }}
-    >
-      <p className="font-[family-name:var(--font-heading)] text-sm tracking-wider text-bone/90 uppercase mb-1">
+    <div className="gradient-card rounded-xl p-4 text-center hover:shadow-lg hover:shadow-pink/10 transition-all duration-300">
+      <span className="text-3xl mb-2 block">{lang.flag}</span>
+      <p className="font-[family-name:var(--font-body)] text-sm font-semibold text-foreground/80 mb-1">
         {lang.name}
       </p>
-      <p className="font-[family-name:var(--font-mono)] text-xs text-phantom-light/50 mb-3">
+      <p className="font-[family-name:var(--font-mono)] text-xs text-lavender mb-3">
         {lang.level}
       </p>
-      <div className="w-full h-1 bg-crypt rounded-full overflow-hidden">
+      <div className="skill-bar-bg h-2">
         <div
-          className="h-full bg-gradient-to-r from-phantom to-wraith rounded-full transition-all duration-1000"
+          className="skill-bar-fill h-full"
           style={{ width: `${lang.pct}%` }}
         />
       </div>
@@ -403,7 +575,7 @@ function LanguageCard({ lang, index }: { lang: typeof languages[0]; index: numbe
   );
 }
 
-/* ───────── EXPERIENCE (QUEST LOG) ───────── */
+/* ───────── EXPERIENCE ───────── */
 const quests = [
   {
     company: "SAP",
@@ -411,6 +583,7 @@ const quests = [
     period: "May 2020 - Present",
     location: "Budapest, Hungary",
     type: "LEGENDARY" as const,
+    emoji: "👑",
     desc: [
       "Lead Incident Management for the whole SAP infrastructure",
       "Hyperscalers, Network, Compute, Storage",
@@ -422,6 +595,7 @@ const quests = [
     period: "Feb 2014 - May 2020",
     location: "San Feliu de Guixols",
     type: "EPIC" as const,
+    emoji: "⚡",
     desc: [
       "Senior Incident Manager",
       "Organizing the work of Incident Managers",
@@ -435,6 +609,7 @@ const quests = [
     period: "Jan 2006 - May 2020",
     location: "Budapest",
     type: "EPIC" as const,
+    emoji: "🎮",
     desc: [
       "Blogging about WoW, Starcraft, Diablo & Hearthstone since 2006",
       "Blog with over 10,000 regular readers",
@@ -448,6 +623,7 @@ const quests = [
     period: "Jul 2013 - Feb 2014",
     location: "Barcelona",
     type: "RARE" as const,
+    emoji: "🌟",
     desc: [
       "Service transition of server/network support from UK to Barcelona",
       "24/7 operation across 5 teams",
@@ -460,6 +636,7 @@ const quests = [
     period: "Feb 2012 - Jun 2013",
     location: "Budapest",
     type: "RARE" as const,
+    emoji: "🔐",
     desc: [
       "Firewall changes and rules monitoring",
       "File Integrity and Network Intrusion systems",
@@ -472,6 +649,7 @@ const quests = [
     period: "Oct 2011 - Dec 2011",
     location: "Milton Keynes, UK",
     type: "UNCOMMON" as const,
+    emoji: "🔄",
     desc: [
       "Migration of Incident & Problem Management",
       "Known Error Database management",
@@ -484,6 +662,7 @@ const quests = [
     period: "May 2011 - Sep 2011",
     location: "Budapest",
     type: "UNCOMMON" as const,
+    emoji: "📊",
     desc: [
       "Migration of data to Identity Management Systems (IMS)",
       "Building intranet systems",
@@ -495,6 +674,7 @@ const quests = [
     period: "Apr 2011",
     location: "Budapest → Lisbon",
     type: "UNCOMMON" as const,
+    emoji: "✈️",
     desc: [
       "User Account Management transition to Fujitsu Lisbon",
       "Complete handover: work instructions, process docs, knowledge transfer",
@@ -506,6 +686,7 @@ const quests = [
     period: "Jan 2009 - Mar 2011",
     location: "Budapest",
     type: "UNCOMMON" as const,
+    emoji: "🧑‍💻",
     desc: [
       "User Account Management & On-Call VIP support",
       "Corporate printer & server setup (Windows Server 2003/2008)",
@@ -518,6 +699,7 @@ const quests = [
     period: "Sep 2007 - Dec 2008",
     location: "Budapest",
     type: "COMMON" as const,
+    emoji: "🖥️",
     desc: [
       "System rebuilds on desktops, laptops and VMs",
       "Re-occurring incident analysis",
@@ -526,12 +708,12 @@ const quests = [
   },
 ];
 
-const questColors = {
-  LEGENDARY: { border: "border-[#ff8000]", text: "text-[#ff8000]", glow: "shadow-[0_0_12px_#ff800033]", bg: "bg-[#ff8000]" },
-  EPIC: { border: "border-phantom-light", text: "text-phantom-light", glow: "shadow-[0_0_12px_#a78bfa33]", bg: "bg-phantom-light" },
-  RARE: { border: "border-[#0070dd]", text: "text-[#0070dd]", glow: "shadow-[0_0_12px_#0070dd33]", bg: "bg-[#0070dd]" },
-  UNCOMMON: { border: "border-wraith", text: "text-wraith", glow: "shadow-[0_0_12px_#10b98133]", bg: "bg-wraith" },
-  COMMON: { border: "border-bone/40", text: "text-bone/80", glow: "", bg: "bg-bone/60" },
+const questStyles = {
+  LEGENDARY: { bg: "from-sunshine/20 to-peach/20", border: "border-sunshine", badge: "bg-sunshine/20 text-sunshine", dot: "bg-sunshine" },
+  EPIC: { bg: "from-lavender/20 to-pink/20", border: "border-lavender", badge: "bg-lavender/20 text-lavender", dot: "bg-lavender" },
+  RARE: { bg: "from-sky/20 to-mint/20", border: "border-sky", badge: "bg-sky/20 text-sky", dot: "bg-sky" },
+  UNCOMMON: { bg: "from-mint/20 to-sky/10", border: "border-mint", badge: "bg-mint/20 text-mint", dot: "bg-mint" },
+  COMMON: { bg: "from-foreground/5 to-foreground/5", border: "border-foreground/20", badge: "bg-foreground/10 text-foreground/60", dot: "bg-foreground/40" },
 };
 
 function Experience() {
@@ -539,14 +721,14 @@ function Experience() {
     <section id="quests" className="py-24 md:py-32 px-6">
       <div className="max-w-5xl mx-auto">
         <RevealSection>
-          <SectionHeading>Quest Log</SectionHeading>
+          <SectionHeading emoji="🗂️">Experience</SectionHeading>
         </RevealSection>
 
         <RevealSection>
-          <div className="flex flex-wrap items-center justify-center gap-4 mb-12">
+          <div className="flex flex-wrap items-center justify-center gap-3 mb-12">
             {(["LEGENDARY", "EPIC", "RARE", "UNCOMMON", "COMMON"] as const).map((t) => (
-              <span key={t} className={`font-[family-name:var(--font-mono)] text-xs tracking-wider ${questColors[t].text} flex items-center gap-2`}>
-                <span className={`w-2 h-2 rounded-full ${questColors[t].bg}`} />
+              <span key={t} className={`font-[family-name:var(--font-mono)] text-xs tracking-wider px-3 py-1 rounded-full ${questStyles[t].badge} flex items-center gap-2`}>
+                <span className={`w-2 h-2 rounded-full ${questStyles[t].dot}`} />
                 {t}
               </span>
             ))}
@@ -574,60 +756,52 @@ function QuestCard({
   index: number;
   isLast: boolean;
 }) {
-  const colors = questColors[quest.type];
+  const styles = questStyles[quest.type];
   const isRight = index % 2 === 1;
 
   return (
     <div className={`relative flex flex-col md:flex-row items-start ${!isLast ? "mb-8" : ""}`}>
       {/* Timeline node */}
       <div className="absolute left-[18px] md:left-1/2 md:-translate-x-1/2 top-0 z-10">
-        <div className={`w-[12px] h-[12px] rounded-full border-2 ${colors.border} bg-crypt ${colors.glow}`} />
+        <div className={`w-[14px] h-[14px] rounded-full border-2 ${styles.border} bg-white shadow-md`} />
       </div>
 
       {/* Card */}
-      <div
-        className={`ml-12 md:ml-0 md:w-[calc(50%-32px)] ${
-          isRight ? "md:ml-auto" : "md:mr-auto"
-        }`}
-      >
-        <div className={`quest-card p-6 border ${colors.border}/30 bg-ash/40 backdrop-blur-sm hover:bg-ash/60 transition-all duration-300 group`}>
+      <div className={`ml-12 md:ml-0 md:w-[calc(50%-32px)] ${isRight ? "md:ml-auto" : "md:mr-auto"}`}>
+        <div className={`rounded-2xl p-6 bg-gradient-to-br ${styles.bg} border ${styles.border}/30 hover:shadow-lg hover:shadow-pink/5 transition-all duration-300`}>
           {/* Header */}
-          <div className="flex flex-wrap items-start justify-between gap-2 mb-3">
+          <div className="flex items-start gap-3 mb-3">
+            <span className="text-2xl">{quest.emoji}</span>
             <div>
-              <span className={`font-[family-name:var(--font-mono)] text-[10px] tracking-[0.3em] uppercase ${colors.text} opacity-80`}>
+              <span className={`font-[family-name:var(--font-mono)] text-[10px] tracking-[0.3em] uppercase px-2 py-0.5 rounded-full ${styles.badge}`}>
                 {quest.type}
               </span>
-              <h3 className="font-[family-name:var(--font-heading)] text-lg md:text-xl font-semibold text-bone/95 mt-1 tracking-wide">
+              <h3 className="font-[family-name:var(--font-display)] text-lg md:text-xl font-semibold text-foreground/90 mt-1">
                 {quest.role}
               </h3>
             </div>
           </div>
 
-          <div className="flex flex-wrap items-center gap-3 mb-4">
-            <span className="font-[family-name:var(--font-heading)] text-sm text-phantom-light/80 tracking-wider">
+          <div className="flex flex-wrap items-center gap-3 mb-4 ml-11">
+            <span className="font-[family-name:var(--font-body)] text-sm text-lavender font-semibold">
               {quest.company}
             </span>
-            <span className="text-bone/20">|</span>
-            <span className="font-[family-name:var(--font-mono)] text-xs text-bone/40">
+            <span className="text-foreground/20">|</span>
+            <span className="font-[family-name:var(--font-mono)] text-xs text-foreground/40">
               {quest.period}
             </span>
           </div>
 
           {quest.location && (
-            <p className="font-[family-name:var(--font-mono)] text-xs text-wraith/50 mb-4 flex items-center gap-1.5">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="shrink-0">
-                <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" />
-                <circle cx="12" cy="9" r="2.5" />
-              </svg>
-              {quest.location}
+            <p className="font-[family-name:var(--font-mono)] text-xs text-foreground/40 mb-4 ml-11 flex items-center gap-1.5">
+              📍 {quest.location}
             </p>
           )}
 
-          {/* Description bullets */}
-          <ul className="space-y-1.5">
+          <ul className="space-y-1.5 ml-11">
             {quest.desc.map((d) => (
-              <li key={d} className="flex items-start gap-2 text-sm text-bone/55 font-[family-name:var(--font-body)]">
-                <span className={`mt-2 w-1 h-1 rounded-full shrink-0 ${colors.bg} opacity-60`} />
+              <li key={d} className="flex items-start gap-2 text-sm text-foreground/60 font-[family-name:var(--font-body)]">
+                <span className={`mt-1.5 w-1.5 h-1.5 rounded-full shrink-0 ${styles.dot} opacity-60`} />
                 {d}
               </li>
             ))}
@@ -646,41 +820,38 @@ function Education() {
       degree: "Bachelor of Science (BSc)",
       field: "Information Technology & Economics",
       period: "2004 - 2007",
+      emoji: "🎓",
     },
     {
       school: "Berzsenyi Daniel Gimnazium",
       degree: "Secondary Education",
       field: "Mathematics and Statistics",
       period: "1998 - 2004",
+      emoji: "📚",
     },
   ];
 
   return (
-    <section id="education" className="py-24 md:py-32 px-6">
+    <section id="education" className="py-24 md:py-32 px-6 bg-gradient-to-b from-transparent via-cream/50 to-transparent">
       <div className="max-w-4xl mx-auto">
         <RevealSection>
-          <SectionHeading>Training Grounds</SectionHeading>
+          <SectionHeading emoji="🎓">Education</SectionHeading>
         </RevealSection>
 
         <div className="grid md:grid-cols-2 gap-6">
           {education.map((e) => (
             <RevealSection key={e.school}>
-              <div className="p-8 border border-phantom/15 bg-ash/30 hover:border-phantom/30 transition-all duration-300 group">
+              <div className="gradient-card rounded-2xl p-8 hover:shadow-lg hover:shadow-lavender/10 transition-all duration-300">
                 <div className="flex items-start gap-4">
-                  <div className="mt-1 w-10 h-10 border border-wraith/30 flex items-center justify-center shrink-0" style={{ animation: "glowGreen 3s ease-in-out infinite" }}>
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-wraith">
-                      <path d="M12 14l9-5-9-5-9 5 9 5z" />
-                      <path d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z" />
-                    </svg>
-                  </div>
+                  <span className="text-3xl">{e.emoji}</span>
                   <div>
-                    <h3 className="font-[family-name:var(--font-heading)] text-lg font-semibold text-bone/90 tracking-wide">
+                    <h3 className="font-[family-name:var(--font-display)] text-lg font-semibold text-foreground/90">
                       {e.school}
                     </h3>
-                    <p className="font-[family-name:var(--font-body)] text-sm text-phantom-light/70 mt-1">
+                    <p className="font-[family-name:var(--font-body)] text-sm text-lavender mt-1">
                       {e.degree} &mdash; {e.field}
                     </p>
-                    <p className="font-[family-name:var(--font-mono)] text-xs text-bone/40 mt-2">
+                    <p className="font-[family-name:var(--font-mono)] text-xs text-foreground/40 mt-2">
                       {e.period}
                     </p>
                   </div>
@@ -690,11 +861,10 @@ function Education() {
           ))}
         </div>
 
-        {/* Certification */}
         <RevealSection>
           <div className="mt-8 text-center">
-            <span className="inline-block px-4 py-2 border border-wraith/20 bg-wraith/5 font-[family-name:var(--font-mono)] text-xs tracking-wider text-wraith/70">
-              Certified: Duolingo English Fluency &mdash; Expert
+            <span className="inline-block px-6 py-3 rounded-full bg-gradient-to-r from-pink/10 to-lavender/10 border border-pink/20 font-[family-name:var(--font-mono)] text-xs tracking-wider text-foreground/60">
+              ✅ Certified: Duolingo English Fluency &mdash; Expert
             </span>
           </div>
         </RevealSection>
@@ -709,32 +879,20 @@ function Contact() {
     {
       label: "deathcrow42@gmail.com",
       href: "mailto:deathcrow42@gmail.com",
-      icon: (
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-          <rect x="2" y="4" width="20" height="16" rx="2" />
-          <path d="M22 4L12 13 2 4" />
-        </svg>
-      ),
+      emoji: "💌",
+      color: "from-pink/10 to-peach/10 border-pink/20 hover:border-pink/50",
     },
     {
       label: "+36 30 3112433",
       href: "tel:+36303112433",
-      icon: (
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-          <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 16.92z" />
-        </svg>
-      ),
+      emoji: "📱",
+      color: "from-lavender/10 to-sky/10 border-lavender/20 hover:border-lavender/50",
     },
     {
       label: "LinkedIn",
       href: "https://www.linkedin.com/in/ngocnguyenquang",
-      icon: (
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-          <path d="M16 8a6 6 0 016 6v7h-4v-7a2 2 0 00-2-2 2 2 0 00-2 2v7h-4v-7a6 6 0 016-6z" />
-          <rect x="2" y="9" width="4" height="12" />
-          <circle cx="4" cy="4" r="2" />
-        </svg>
-      ),
+      emoji: "💼",
+      color: "from-sky/10 to-mint/10 border-sky/20 hover:border-sky/50",
     },
   ];
 
@@ -742,13 +900,13 @@ function Contact() {
     <section id="contact" className="py-24 md:py-32 px-6">
       <div className="max-w-4xl mx-auto text-center">
         <RevealSection>
-          <SectionHeading>Summon Me</SectionHeading>
+          <SectionHeading emoji="💬">Get In Touch</SectionHeading>
         </RevealSection>
 
         <RevealSection>
-          <p className="font-[family-name:var(--font-body)] text-lg text-bone/50 mb-12 max-w-lg mx-auto italic">
-            Ready for the next raid? Looking for a seasoned incident commander?
-            Send a signal.
+          <p className="font-[family-name:var(--font-display)] text-lg text-foreground/50 mb-12 max-w-lg mx-auto italic">
+            Ready for the next adventure? Looking for a seasoned incident commander?
+            Slide into my DMs, bestie! 💅
           </p>
         </RevealSection>
 
@@ -760,12 +918,10 @@ function Contact() {
                 href={l.href}
                 target={l.href.startsWith("http") ? "_blank" : undefined}
                 rel={l.href.startsWith("http") ? "noopener noreferrer" : undefined}
-                className="flex items-center gap-3 px-6 py-4 border border-phantom/20 bg-ash/30 text-bone/70 hover:text-phantom-light hover:border-phantom/50 hover:bg-ash/60 transition-all duration-300 w-full sm:w-auto justify-center group"
+                className={`flex items-center gap-3 px-6 py-4 rounded-2xl bg-gradient-to-r ${l.color} border transition-all duration-300 w-full sm:w-auto justify-center hover:shadow-lg hover:-translate-y-1`}
               >
-                <span className="text-phantom/50 group-hover:text-phantom-light transition-colors">
-                  {l.icon}
-                </span>
-                <span className="font-[family-name:var(--font-mono)] text-sm tracking-wider">
+                <span className="text-xl">{l.emoji}</span>
+                <span className="font-[family-name:var(--font-mono)] text-sm tracking-wider text-foreground/70">
                   {l.label}
                 </span>
               </a>
@@ -780,11 +936,15 @@ function Contact() {
 /* ───────── FOOTER ───────── */
 function Footer() {
   return (
-    <footer className="py-12 px-6 border-t border-phantom/10">
+    <footer className="py-12 px-6 border-t border-pink/10">
       <div className="max-w-4xl mx-auto text-center">
         <div className="section-divider mb-8" />
-        <p className="font-[family-name:var(--font-mono)] text-xs text-bone/25 tracking-wider">
-          &copy; {new Date().getFullYear()} Ngoc Nguyen Quang &mdash; Forged in darkness, tempered by incidents.
+        <p className="text-4xl mb-4">🏳️‍🌈</p>
+        <p className="font-[family-name:var(--font-mono)] text-xs text-foreground/30 tracking-wider">
+          &copy; {new Date().getFullYear()} Ngoc Nguyen Quang &mdash; Fabulous & proud
+        </p>
+        <p className="font-[family-name:var(--font-mono)] text-[10px] text-foreground/20 tracking-wider mt-2">
+          Made with 💖 and a lot of ☕
         </p>
       </div>
     </footer>
@@ -795,11 +955,12 @@ function Footer() {
 export default function Home() {
   return (
     <>
-      <Particles />
+      <Balloons />
       <Nav />
       <main className="relative z-10">
         <Hero />
         <About />
+        <PhotoGallery />
         <Skills />
         <Experience />
         <Education />
